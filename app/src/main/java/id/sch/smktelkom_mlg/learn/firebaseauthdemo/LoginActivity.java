@@ -17,43 +17,43 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private Button buttonRegister;
+    private Button buttonSignIn;
     private EditText editTextEmail;
     private EditText editTextPassword;
-    private TextView textViewSignin;
-
-    private ProgressDialog progressDialog;
+    private TextView textViewSignup;
 
     private FirebaseAuth firebaseAuth;
+
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        setTitle("Register");
+        setContentView(R.layout.activity_login);
+        setTitle("Login");
 
         firebaseAuth = FirebaseAuth.getInstance();
+
         if (firebaseAuth.getCurrentUser() != null) {
             //profile activity here
             finish();
             startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
         }
 
-        progressDialog = new ProgressDialog(this);
-
-        buttonRegister = (Button) findViewById(R.id.buttonRegister);
         editTextEmail = (EditText) findViewById(R.id.editTextEmail);
         editTextPassword = (EditText) findViewById(R.id.editTextPassword);
-        textViewSignin = (TextView) findViewById(R.id.textViewSignin);
+        buttonSignIn = (Button) findViewById(R.id.buttonSignin);
+        textViewSignup = (TextView) findViewById(R.id.textViewSignUp);
 
-        buttonRegister.setOnClickListener(this);
-        textViewSignin.setOnClickListener(this);
+        progressDialog = new ProgressDialog(this);
+
+        buttonSignIn.setOnClickListener(this);
+        textViewSignup.setOnClickListener(this);
     }
 
-
-    private void registerUser() {
+    private void userLogin() {
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
 
@@ -73,34 +73,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //if validation are ok
         //we will first show a progressbar
 
-        progressDialog.setMessage("Registering User...");
+        progressDialog.setMessage("Login User...");
         progressDialog.show();
 
-        firebaseAuth.createUserWithEmailAndPassword(email, password)
+        firebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        progressDialog.dismiss();
                         if (task.isSuccessful()) {
+                            //start the profile activity
                             finish();
                             startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-                        } else {
-                            Toast.makeText(MainActivity.this, "Could not register. please try again", Toast.LENGTH_SHORT).show();
                         }
-                        progressDialog.dismiss();
                     }
                 });
     }
 
-
     @Override
     public void onClick(View view) {
-        if (view == buttonRegister) {
-            registerUser();
+        if (view == buttonSignIn) {
+            userLogin();
         }
-
-        if (view == textViewSignin) {
-            //will open login activity here
-            startActivity(new Intent(this, LoginActivity.class));
+        if (view == textViewSignup) {
+            finish();
+            startActivity(new Intent(this, MainActivity.class));
         }
 
     }
